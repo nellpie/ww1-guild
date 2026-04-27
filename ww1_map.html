@@ -864,10 +864,17 @@ Her başlık için 2-3 madde yazma. Türkçe olsun.`
           imgH = img.naturalHeight;
           img.style.width = imgW + 'px';
           img.style.height = imgH + 'px';
+          
+          // Canvas'ı harita boyutuna ayarla
           canvas.width = imgW;
           canvas.height = imgH;
+          canvas.style.width = imgW + 'px';
+          canvas.style.height = imgH + 'px';
+          
           fitToScreen();
           loader.classList.add('hidden');
+          
+          console.log('Canvas initialized:', canvas.width, 'x', canvas.height);
         }
         img.classList.remove('fading');
       };
@@ -981,6 +988,14 @@ Her başlık için 2-3 madde yazma. Türkçe olsun.`
 
   // ── INIT ──
   async function init() {
+    // Reset canvas styles
+    canvas.style.backgroundColor = 'transparent';
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.cursor = 'pointer';
+    canvas.style.zIndex = '10';
+    
     // Check API key
     const hasApiKey = localStorage.getItem('ww1_api_key');
     if (!hasApiKey) {
