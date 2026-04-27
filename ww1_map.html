@@ -575,34 +575,6 @@
 </div>
 
 <script>
-  // Canvas click fix
-canvas.addEventListener('click', (e) => {
-  if (!hitboxData) return;
-  
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  
-  console.log('Clicked at:', x, y, 'Canvas pos:', rect.left, rect.top);
-  
-  // Transform'u tersine çevir
-  const actualX = (x - ox) / scale;
-  const actualY = (y - oy) / scale;
-  
-  console.log('Actual coords:', actualX, actualY);
-  
-  const year = YEARS[yearIdx].toString();
-  const countriesForYear = hitboxData.countries.filter(c => c.year === year);
-
-  for (let country of countriesForYear) {
-    if (country.points && isPointInPolygon(actualX, actualY, country.points)) {
-      selectedCountry = country;
-      showSmallPopup(country, e.clientX, e.clientY);
-      return;
-    }
-  }
-}, false);
-  
   // CONFIG
   const YEARS = [1914, 1915, 1916, 1917, 1918];
   const TYPES = ['country', 'alliance'];
@@ -694,20 +666,31 @@ canvas.addEventListener('click', (e) => {
     if (!hitboxData) return;
     
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left - ox) / scale;
-    const y = (e.clientY - rect.top - oy) / scale;
+    
+    // Viewport'taki tıklanmış konum
+    const viewX = e.clientX - rect.left;
+    const viewY = e.clientY - rect.top;
+    
+    // Transform'u tersine çevir (pan/zoom'u geri al)
+    const actualX = (viewX - ox) / scale;
+    const actualY = (viewY - oy) / scale;
+    
+    console.log('Click at viewport:', viewX, viewY, '-> Canvas coords:', actualX, actualY);
 
     const year = YEARS[yearIdx].toString();
     const countriesForYear = hitboxData.countries.filter(c => c.year === year);
 
     for (let country of countriesForYear) {
-      if (country.points && isPointInPolygon(x, y, country.points)) {
+      if (country.points && isPointInPolygon(actualX, actualY, country.points)) {
+        console.log('Hit! Country:', country.name);
         selectedCountry = country;
         showSmallPopup(country, e.clientX, e.clientY);
         return;
       }
     }
-  });
+    
+    console.log('No country hit at', actualX, actualY);
+  }, false);
 
   // ── POPUP FUNCTIONS ──
   async function showSmallPopup(country, clientX, clientY) {
